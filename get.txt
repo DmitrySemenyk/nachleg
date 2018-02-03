@@ -1,0 +1,271 @@
+// Запросы на данные из таблицы, возвращает json
+http://nochleg.eu-4.evennode.com/database/flats
+
+//Запрос на удаление
+http://nochleg.eu-4.evennode.com/delete/:flat_id
+
+//Запрос на добовление
+http://nochleg.eu-4.evennode.com/database/add
+
+editClose: function () {
+            let url = this.host + 'database/edit/' + this.form.flat_id;
+            this.axios.post(url, this.form);
+            this.showModal = false;
+            this.$router.push('/');
+          },
+
+<template>
+  <div id="modal-template">
+    <transition name="modal">
+      <div class="modal-mask">
+        <div class="modal-wrapper">
+          <div class="modal-container">
+
+            <div class="modal-header">
+              <div>
+
+               </div>
+            </div>
+            <div class="modal-body">
+              <slot name="body">
+                <strong>Назвавание и описание об обьявлние</strong>
+                <b-form-input class="form-style"
+                              type="text"
+                              :placeholder="form.title"
+                              v-model="form.title"></b-form-input>
+                <b-form-textarea class="form-style"
+                                 id="textarea1"
+                                 type="text"
+                                 placeholder="Введите дополнительную информацию о квартире"
+                                 v-model="form.post_text"
+                                 :rows="6"
+                                 :max-rows="12"></b-form-textarea>
+                <strong>Адрес квартиры</strong>
+                <el-row class="form-style">
+                  <el-col :span="8"><div class="grid-content bg-purple">
+                    <el-autocomplete
+                      class="elemHouse"
+                      v-model="form.city"
+                      :fetch-suggestions="querySearchAsync"
+                      placeholder="Выберите город"
+                      @select="handleSelect"><template slot="prepend">Город:</template></el-autocomplete>
+                  </div></el-col>
+                  <el-col :span="8"><div class="grid-content bg-purple-light">
+                    <el-input
+                      class="elemHouse"
+                      placeholder="Введите улицу"
+                      v-model="form.street"
+                      clearable><template slot="prepend">Улица:</template>
+                    </el-input>
+                  </div></el-col>
+                  <el-col :span="8"><div class="grid-content bg-purple">
+                    <el-input-number v-model="form.building" controls-position="right" @change="handleChange" :min="1" :max="1000" class="elemHouse"></el-input-number>
+                  </div></el-col>
+                </el-row>
+                <strong>Выберите количество комнат</strong>
+                <b-form-group>
+                  <b-form-radio-group class=""
+                                      id="btnradios2"
+                                      buttons
+                                      button-variant="outline-primary"
+                                      size="lg"
+                                      v-model="form.rooms"
+                                      :options="roomsOptions"
+                                      name="radioBtnOutline" />
+                </b-form-group>
+                <strong>Атрибуты квартиры</strong>
+                <el-row :gutter="20">
+                  <el-col :span="14"><div class="grid-content bg-purple">
+                    <el-select v-model="form.state" placeholder="Select">
+                      <el-option
+                        v-for="item in stateFix"
+                        :key="item.value"
+                        :label="item.text"
+                        :value="item.value">
+                      </el-option>
+                    </el-select>
+                  </div></el-col>
+                  <el-col :span="5"><div class="grid-content bg-purple">
+                    <el-switch
+                      style="display: block"
+                      v-model="form.mebel"
+                      active-color="#13ce66"
+                      inactive-color="#ff4949"
+                      inactive-text="Мебель">
+                    </el-switch>
+                  </div></el-col>
+                  <el-col :span="5"><div class="grid-content bg-purple">
+                    <el-switch
+                      style="display: block"
+                      v-model="form.internet"
+                      active-color="#13ce66"
+                      inactive-color="#ff4949"
+                      inactive-text="Интернет">
+                    </el-switch>
+                  </div></el-col>
+                </el-row>
+                <strong>Укажите номер телефона и цену квартиры</strong>
+                <el-row :gutter="20">
+                  <el-col :span="16"><div class="grid-content bg-purple">
+                    <el-input placeholder="Введите номер телефона" v-model="form.phone"></el-input>
+                  </div></el-col>
+                  <el-col :span="8"><div class="grid-content bg-purple">
+                    <el-input placeholder="" v-model="form.price">
+                      <template slot="append">&#8364;</template>
+                    </el-input>
+                  </div></el-col>
+                </el-row>
+                <strong>Укажите дату обьявления и выберите рекламные</strong>
+                <el-row :gutter="20">
+                  <el-col :span="8"><div class="grid-content bg-purple">
+                    <el-date-picker
+                      v-model="form.date_post"
+                      format="dd-MM-yyyy HH:mm"
+                      value-format="dd-MM-yyyy HH:mm"
+                      type="datetime"
+                      placeholder="Select date and time">
+                    </el-date-picker>
+                  </div></el-col>
+                  <el-col :span="16"><div class="grid-content bg-purple">
+                    <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange">Выделить всё</el-checkbox>
+                    <div style="margin: 15px 0;"></div>
+                    <el-checkbox-group v-model="form.post_places_new" @change="handleCheckedCitiesChange">
+                      <el-checkbox v-for="city in cities" :label="city" :key="city" border>{{city}}</el-checkbox>
+                    </el-checkbox-group>
+                  </div></el-col>
+                </el-row>
+              </slot>
+            </div>
+
+            <div class="modal-footer">
+              <slot name="footer">
+                default footer
+                <button class="modal-default-button" @click="editClose">
+                  OK
+                </button>
+              </slot>
+            </div>
+          </div>
+        </div>
+      </div>
+    </transition>
+  </div>
+</template>
+
+<script>
+    const cityOptions = ['onliner.by', 'kufar.by', 'akua.by', 'tut.by'];
+    export default {
+        name: "editItem",
+        params: {
+          items: []
+        },
+        data(){
+          return {
+            showModal: true,
+            form: [],
+            host: 'http://localhost:4000/',
+            roomsOptions: [
+              { text: '1', value: 1 },
+              { text: '2', value: 2 },
+              { text: '3', value: 3 },
+              { text: '4', value: 4 }
+            ],
+            stateFix: [
+              { value: 'отличное состояние', text: 'отличное состояние' },
+              { value: 'хорошее состояние', text: 'хорошее состояние' }
+            ],
+            checkAll: false,
+            cities: cityOptions,
+            isIndeterminate: true,
+            checkedCities: ['onliner.by', 'kufar.by'],
+          }
+
+        },
+        created: function(){
+          this.form = this.$route.params
+        },
+        methods: {
+          editClose: function () {
+            let url = this.host + 'database/edit/' + this.form.flat_id;
+            this.axios.post(url, this.form);
+            this.showModal = false;
+            this.$router.push('/');
+          },
+          handleCheckAllChange: function(val) {
+            this.form.post_places_new = val ? cityOptions : [];
+            this.isIndeterminate = false;
+          },
+          handleCheckedCitiesChange: function(value) {
+            let checkedCount = value.length;
+            this.checkAll = checkedCount === this.cities.length;
+            this.isIndeterminate = checkedCount > 0 && checkedCount < this.cities.length;
+          }
+        }
+    }
+</script>
+
+<style scoped>
+  .modal-mask {
+    position: fixed;
+    z-index: 9998;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, .5);
+    display: table;
+    transition: opacity .3s ease;
+  }
+
+  .modal-wrapper {
+    display: table-cell;
+    vertical-align: middle;
+  }
+
+  .modal-container {
+    width: 800px;
+    margin: 0px auto;
+    padding: 20px 30px;
+    background-color: #fff;
+    border-radius: 2px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .33);
+    transition: all .3s ease;
+    font-family: Helvetica, Arial, sans-serif;
+  }
+
+  .modal-header h3 {
+    margin-top: 0;
+    color: #42b983;
+  }
+
+  .modal-body {
+    margin: 20px 0;
+  }
+
+  .modal-default-button {
+    float: right;
+  }
+
+  /*
+   * The following styles are auto-applied to elements with
+   * transition="modal" when their visibility is toggled
+   * by Vue.js.
+   *
+   * You can easily play with the modal transition by editing
+   * these styles.
+   */
+
+  .modal-enter {
+    opacity: 0;
+  }
+
+  .modal-leave-active {
+    opacity: 0;
+  }
+
+  .modal-enter .modal-container,
+  .modal-leave-active .modal-container {
+    -webkit-transform: scale(1.1);
+    transform: scale(1.1);
+  }
+</style>
