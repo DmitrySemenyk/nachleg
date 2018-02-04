@@ -298,17 +298,9 @@
           for(let items in this.sites){
             for(let akk in this.userInfo){
               if(this.sites[items].site_id == this.userInfo[akk].site){
-                console.log(this.sites[items].site_id + " --- " + this.userInfo[akk].site);
                 this.sites[items].array_user.push(this.userInfo[akk]);
-              }else{
-                console.log("Here!");
               }
             }
-            // if(!this.sites[items].array_user.length){
-            //   console.log(items + ": " + this.sites[items].site_name);
-            //   console.log(this.sites);
-            //   this.sites.splice(items, 1);
-            // }
           }
         });
 
@@ -369,8 +361,6 @@
         this.form.fileList_array.push(fileList[fileList.length-1].name);
         this.form.fileList = this.form.fileList_array.toString();
         this.form.post_places = this.form.post_places_new.toString();
-        console.log(this.form.fileList);
-        console.log(this.form.post_places);
       },
       cancelRooot(){
         this.$router.push('/displaytable');

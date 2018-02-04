@@ -16,7 +16,7 @@
 
         </div>
         <div class="col-8">
-          <el-select v-model="uesrForm.service" placeholder="Выберите сервис">
+          <el-select v-model="uesrForm.service" placeholder="Выберите сервис" style="width: 100%">
             <el-option
               v-for="item in sites"
               :key="item.site_id"
@@ -150,14 +150,12 @@
         var urlSites = this.host + 'database/akksites';
         axios.get(urlSites).then((res) => {
           this.sites = res.data;
-          console.log(this.sites);
+
         });
       },
       add_users: function () {
         var add_akkaunts = this.host + 'database/add_akkaunts';
-        this.axios.post(add_akkaunts, this.uesrForm).then((response) => {
-          console.log(res.data);
-        });
+        this.axios.post(add_akkaunts, this.uesrForm)
         this.$refs.modal.hide();
         this.$refs.upload.submit();
       },

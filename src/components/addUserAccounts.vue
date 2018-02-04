@@ -48,21 +48,20 @@
           return{
             userInfo: [],
             sites: [],
-            host: 'http://localhost:4000/'
+            host: 'http://localhost:4000/',
+            interval: new Function()
           }
         },
         mounted: function(){
-          setInterval(this.fetchUsers, 1000);
+          this.interval = setInterval(this.fetchUsers, 1000);
         },
-        created: function() {
-          this.fetchUsers();
+        destroyed(){
+          clearInterval(this.interval);
         },
         methods: {
           fetchUsers: function () {
             var url = this.host + 'database/akkounts';
             var urlSites = this.host + 'database/akksites';
-
-
 
             axios.get(urlSites).then((res) => {
               this.sites = res.data;
@@ -81,7 +80,6 @@
           },
           rowDelete: function(e, i) {
             var url = this.host+ 'database/delete_user/' + e;
-            console.log(url);
             this.userInfo.splice(i, 1);
             axios.get(url);
           },

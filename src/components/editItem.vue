@@ -5,8 +5,7 @@
            title="Изменить обьявление о квартире"
            @cancel="cancelRooot"
            @hidden="cancelRooot"
-           @ok="handleOk"
-           @shown="clearName">
+           @ok="handleOk">
     <form @submit.prevent="editClose">
       <b-form-input class="form-style"
                     type="text"
@@ -214,15 +213,11 @@
     },
 
     created: function(){
-      console.log(this.$route.params);
       this.form = this.$route.params.item;
       this.imageCard();
       this.addCitis();
     },
     methods: {
-      clearName () {
-        console.log(this.form);
-      },
       handleOk (evt) {
         // Prevent modal from closing
         evt.preventDefault()
@@ -293,9 +288,6 @@
       },
       beforeRemove(file, fileList) {
         // return this.$confirm(`Вы действительно хотите удалить ${ file.name }？`);
-        console.log(file.name);
-        console.log(this.form.photo_dist);
-        console.log(find(this.form.photo_dist, file.name));
         this.form.photo_dist.splice(find(this.form.photo_dist, file.name), 1);
       },
       beforeUpdate(file, fileList){
@@ -306,7 +298,6 @@
         for (let val in this.form.photo_dist ){
           this.photo_card_elem = {name: this.form.photo_dist[val], url: 'http://localhost:4000/' + this.form.photo_dist[val] };
           this.photo_card.push(this.photo_card_elem);
-          console.log(this.photo_card);
         };
       },
       cancelRooot(){

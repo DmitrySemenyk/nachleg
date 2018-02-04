@@ -26,8 +26,8 @@ var db = new sqlite3.Database('./src/db/base.db', sqlite3.OPEN_READWRITE, functi
   console.log('Connected!!!');
 });
 // Запросы SQL
-const citis = 'SELECT value FROM cities';
-const flats = 'SELECT flat_id,post_text,city,rooms,mebel,state,phone,internet,street,building,title,price,date_post,post_places,photo_dist from flats ORDER BY date_post';
+const citis = 'SELECT value FROM cities';  //SELECT DATE_FORMAT(date,'%d.%m.%Y') AS date_X, id, name, descr FROM tadat ORDER BY date DESC
+const flats = 'SELECT flat_id,post_text,city,rooms,mebel,state,phone,internet,street,building,title,price, strftime("%d.%m.%Y %H:%M",date_post) AS date_post_new,post_places,photo_dist from flats ORDER BY date_post DESC';
 const form_insert = 'INSERT INTO flats' +
   '(title,post_text,city,street,building,rooms,state,mebel,internet,phone,price,date_post,post_places,photo_dist)' +
   ' VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?) ';

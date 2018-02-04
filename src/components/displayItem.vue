@@ -15,7 +15,7 @@
       </thead>
       <tbody>
       <tr v-for="(items, index) in tableData">
-        <td> <strong>{{ items.date_post}}</strong>
+        <td> <strong>{{ items.date_post_new}}</strong>
           <div  v-for="elem in items.post">
             <p class="p_post">{{elem}}</p>
           </div>
@@ -55,20 +55,15 @@
         tableData: [],
         tableData_old: [],
         form: [],
-        host: 'http://localhost:4000/'
+        host: 'http://localhost:4000/',
+        interval: new Function()
       }
     },
     mounted: function(){
-      setInterval(this.fetchItems, 1000);
+      this.interval = setInterval(this.fetchItems, 1000);
     },
-    created: function() {
-      this.fetchItems();
-    },
-    watch: {
-      '$route': function(newRoute, oldRoute){
-        console.log(newRoute, oldRoute)
-        setTimeout(this.fetchItems ,1000);
-      }
+    destroyed(){
+      clearInterval(this.interval);
     },
     methods: {
       fetchItems: function () {

@@ -19,7 +19,8 @@ locale.use(lang)
 Vue.use(VueAxios,
   axios,
   BootstrapVue,
-  Element)
+  Element);
+Vue.config.silent = true;
 
 new Vue({
   el: '#app',
