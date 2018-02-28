@@ -7,7 +7,7 @@
            @cancel="cancelRooot"
            @hidden="cancelRooot"
            @shown="clearName">
-    <form @submit.prevent="add_users">
+    <form @submit.prevent="edit_users">
       <div class="row">
         <div class="col-3">
           Сервис
@@ -16,7 +16,7 @@
 
         </div>
         <div class="col-8">
-          <el-select v-model="uesrForm.service" placeholder="Выберите сервис" style="width: 100%">
+          <el-select v-model="uesrForm.site" placeholder="Выберите сервис" style="width: 100%">
             <el-option
               v-for="item in sites"
               :key="item.site_id"
@@ -28,13 +28,13 @@
       </div>
       <div class="row">
         <div class="col-3">
-         Имя
+          Метка
         </div>
         <div class="col-1">
 
         </div>
         <div class="col-8">
-          <el-input placeholder="Введите метку аккайнта" v-model="uesrForm.metka"></el-input>
+          <el-input placeholder="Введите метку аккайнта" v-model="uesrForm.man"></el-input>
         </div>
       </div>
       <div class="row">
@@ -56,12 +56,12 @@
 
         </div>
         <div class="col-8">
-          <el-input placeholder="Введите пароль" v-model="uesrForm.password"></el-input>
+          <el-input placeholder="Введите пароль" v-model="uesrForm.pass"></el-input>
         </div>
       </div>
       <div class="row">
         <div class="col-3">
-         Email
+          Email
         </div>
         <div class="col-1">
 
@@ -130,18 +130,17 @@
   export default {
 
 
-    name: 'createUser',
+    name: 'editUser',
     data() {
       return {
         modalCreateUser: true,
-        uesrForm: {
-          status: '1'
-        },
+        uesrForm: {},
         sites: [],
         host: 'http://localhost:4000/'
       };
     },
     created: function() {
+      this.uesrForm = this.$route.params.item;
       this.fetchUsers();
     },
     methods: {
@@ -155,17 +154,16 @@
 
         });
       },
-      add_users: function () {
-        var add_akkaunts = this.host + 'database/add_akkaunts';
-        this.axios.post(add_akkaunts, this.uesrForm)
-        this.$refs.modal.hide();
-        this.$refs.upload.submit();
+      edit_users: function () {
+        let url = this.host + 'database/edituser/' + this.uesrForm.akk_id;
+        console.log(url);
+        this.axios.post(url, this.uesrForm);
+        this.$router.push('/user');
       },
       handleOk: function () {
-        // Prevent modal from closing
-          this.add_users();
-        }
-      },
+        this.edit_users();
+      }
+    },
 
   }
 </script>

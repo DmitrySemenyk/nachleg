@@ -5,7 +5,7 @@
 
         <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
 
-        <b-navbar-brand to="/">NOCHLEG</b-navbar-brand>
+        <b-navbar-brand to="/"><img src="/src/img/Nochleg_.png" width="80px" alt="NOCHLEG"></b-navbar-brand>
 
         <b-collapse is-nav id="nav_collapse">
 
@@ -29,6 +29,9 @@
       </b-navbar>
       <transition name="slide">
         <router-view></router-view>
+        <div class="elem-div">
+
+        </div>
       </transition>
     </div>
 
@@ -95,6 +98,27 @@ export default {
     background-color: #17A2B8;
     color: #FFEDDE;
     border-color: #17A2B8;
+  }
+  #app{
+    background-image: url('/src/img/Nochleg_O.png');
+  }
+  .elem-div{
+    background-image: url('/src/img/Nochleg_O.png');
+    background-repeat: no-repeat;
+    -moz-background-size: 100%; /* Firefox 3.6+ */
+    -webkit-background-size: 100%; /* Safari 3.1+ и Chrome 4.0+ */
+    -o-background-size: 100%; /* Opera 9.6+ */
+    background-size: 100%; /* Современные браузеры */
+    position: fixed;
+    width: 100%;
+    height: 100%;
+  }
+  .h1_possition{
+    margin-bottom: auto;
+    margin-top: auto;
+    margin-left: auto;
+    margin-right: auto;
+    width: 6em;
   }
 
 </style>

@@ -3,7 +3,9 @@ var express = require('express'),
   bodyParser = require('body-parser'),
   cors = require('cors'),
   sqlite3 = require('sqlite3'),
+  fs = require('fs');
   multer = require('multer');
+
 
 const itemRoutes = express.Router();
 
@@ -14,6 +16,7 @@ var storage = multer.diskStorage({
     cb(null, './src/assets/');
   },
   filename: function(req,file,cb){
+    console.log(req.body.filename);
     cb(null,file.originalname);
   }
 });
@@ -27,18 +30,20 @@ var db = new sqlite3.Database('./src/db/base.db', sqlite3.OPEN_READWRITE, functi
 });
 // Запросы SQL
 const citis = 'SELECT value FROM cities';  //SELECT DATE_FORMAT(date,'%d.%m.%Y') AS date_X, id, name, descr FROM tadat ORDER BY date DESC
-const flats = 'SELECT flat_id,post_text,city,rooms,mebel,state,phone,internet,street,building,title,price, strftime("%d.%m.%Y %H:%M",date_post) AS date_post_new,post_places,photo_dist from flats ORDER BY date_post DESC';
+const flats = 'SELECT flat_id,post_text,city,rooms,mebel,state,phone,internet,street,building,title,price,date_post,post_places,photo_dist from flats ORDER BY date_post DESC';
 const form_insert = 'INSERT INTO flats' +
   '(title,post_text,city,street,building,rooms,state,mebel,internet,phone,price,date_post,post_places,photo_dist)' +
   ' VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?) ';
 const deleteRow = 'DELETE INTO flats WHERE rowid=?';
 const postInsert = 'INSERT INTO posts(flat,time_post) VALUES (?,?)';
-const akkounts = 'SELECT akk_id,site,man,login,pass,email,phone,profilepath FROM akkaunts';
-const akksites = 'SELECT site_id,site_name,element_akkaunts FROM sites'
+const akkounts = 'SELECT akk_id,site,man,login,pass,email,phone,profilepath,status FROM akkaunts';
+const akksites = 'SELECT site_id,site_name,element_akkaunts FROM sites';
 const akkaunts_insert = 'INSERT INTO akkaunts ' +
-  '(site,man,login,pass,email,phone)' +
-  'VALUES (?,?,?,?,?,?)';
+  '(site,man,login,pass,email,phone,status)' +
+  'VALUES (?,?,?,?,?,?,?)';
 const deleteUser = 'DELETE INTO akkaunts WHERE akk_id=?';
+const postplaces = 'INSERT INTO post_plase(post,akkaunt,state) VALUES (?,?,?)';
+const postplaces_get = 'SELECT pp_id,post,akkaunt,state FROM post_plase';
 // const editRow = 'UPADTE flats SET title='
 
 itemRoutes.route('/citys').get(function(req,res){
@@ -73,7 +78,6 @@ itemRoutes.route('/add').post(function (req, res) {
   }else{
     req.body.internet = false
   }
-
   db.run(form_insert, [
     req.body.title,
     req.body.post_text,
@@ -94,19 +98,32 @@ itemRoutes.route('/add').post(function (req, res) {
       console.log(err.message);
     }else{
       req.itemID = this.lastID;
+      let arrAkaunts = req.body.post_places.split(',');
+      let state = 'wait';
+      for(key in arrAkaunts){
+        db.run(postplaces, [req.itemID, arrAkaunts[key], state], function (err) {
+          if(err){
+            console.log(err.message);
+          }else{
+            console.log(req.itemID + " :-" + arrAkaunts[key]);
+          }
+        })
+      }
     }
   });
+  res.json({success:true});
 });
 
 itemRoutes.route('/add_akkaunts').post(function (req, res) {
-
+  console.log(req.body);
   db.run(akkaunts_insert, [
     req.body.service,
     req.body.metka,
     req.body.login,
     req.body.password,
     req.body.email,
-    req.body.phone
+    req.body.phone,
+    req.body.status
   ] , function (err) {
     if(err){
       console.log(err.message);
@@ -114,6 +131,7 @@ itemRoutes.route('/add_akkaunts').post(function (req, res) {
       req.itemID = this.lastID;
     }
   });
+  res.json({success:true});
 });
 
 itemRoutes.route('/delete/:flat_id').get(function (req,res) {
@@ -124,6 +142,7 @@ itemRoutes.route('/delete/:flat_id').get(function (req,res) {
     }
     console.log("Delete " + flat_id);
   })
+  res.json({success:true});
 });
 
 itemRoutes.route('/delete_user/:akk_id').get(function (req,res) {
@@ -134,7 +153,9 @@ itemRoutes.route('/delete_user/:akk_id').get(function (req,res) {
       console.log(err.message);
     }
     console.log("Delete USER " + user_id);
-  })});
+  })
+  res.json({success:true});
+});
 
 itemRoutes.route('/edit/:flat_id').post(function (req,res){
   var flat_id = req.params.flat_id;
@@ -165,11 +186,37 @@ itemRoutes.route('/edit/:flat_id').post(function (req,res){
       console.log(item);
     }
   })
+  res.json({success:true});
+});
+
+itemRoutes.route('/edituser/:user_id').post(function(req,res){
+  var user_id = req.params.user_id;
+  console.log(user_id);
+  console.log(req.body);
+  const sqlEdit = "UPDATE akkaunts SET site='" +
+    req.body.site + "', man='" +
+    req.body.man + "', login='" +
+    req.body.login + "', pass='" +
+    req.body.pass + "', email='" +
+    req.body.email + "', phone='" +
+    req.body.phone + "', profilepath='" +
+    req.body.photo_dist + "' WHERE akk_id=?";
+  console.log(sqlEdit);
+  db.run(sqlEdit, user_id, function (err,item) {
+    if(err){
+      console.log(err)
+    }else{
+      res.json(item);
+      console.log(item);
+    }
+  })
+  res.json({success:true});
 });
 
 itemRoutes.route('/photos/upload').post(function (req, res) {
   upload(req,res, function(err){
-    console.log(req.files);
+
+    console.log(req.body);
     res.send(req.files);
     if(err){
 
@@ -193,7 +240,6 @@ itemRoutes.route('/posts').post(function(req,res){
   res.send(req.body);
 });
 
-
 itemRoutes.route('/akkounts').get(function (req,res) {
   db.all(akkounts, [], function(err,items) {
     if(err){
@@ -206,6 +252,22 @@ itemRoutes.route('/akkounts').get(function (req,res) {
 
 itemRoutes.route('/akksites').get(function (req,res) {
   db.all(akksites, [], function(err,items) {
+    if(err){
+      console.log(err.message);
+    }else{
+      res.json(items);
+    }
+  });
+});
+
+itemRoutes.route('/deleteimage/:name_image').get(function(req,res){
+  var fileName = __dirname + '/src/assets/' + req.params.name_image;
+  fs.unlinkSync(fileName);
+  res.send(fileName);
+});
+
+itemRoutes.route('/post_places').get(function (req,res) {
+  db.all(postplaces_get, [], function(err,items) {
     if(err){
       console.log(err.message);
     }else{

@@ -115,7 +115,7 @@
               <el-option
                 v-for="items in item.array_user"
                 :key="item.site_name + ': ' + items.akk_id"
-                :label="item.site_name + ': ' + items.login"
+                :label="items.login"
                 :value="item.site_name + ': ' + items.login">
               </el-option>
             </el-option-group>
@@ -164,7 +164,7 @@
   Vue.use(BootstrapVue);
   locale.use(lang);
 
-  const cityOptions = ['onliner.by', 'kufar.by', 'akua.by', 'tut.by'];
+
 
   export default {
     name: "editItem",
@@ -200,20 +200,20 @@
           { value: 'хорошее состояние', text: 'хорошее состояние' }
         ],
 
-        checkAll: false,
-        checkedCities: ['onliner.by', 'kufar.by'],
-        cities: cityOptions,
-        isIndeterminate: true,
         photo_card_elem: {},
         photo_card: [],
 
         filterCity: '',
-        host: 'http://localhost:4000/'
+        host: 'http://localhost:4000/',
+
+        sites: [],
+        userInfo: []
       };
     },
 
     created: function(){
       this.form = this.$route.params.item;
+      this.fetchItems();
       this.imageCard();
       this.addCitis();
     },
@@ -244,6 +244,7 @@
       fetchItems(){
         let url = this.host + 'database/flats';
         this.axios.get(url).then((res)=> {
+          console.log('tabke_data');
           this.tableData_first = res.data;
 
           this.tableData = this.tableData_first;
@@ -253,11 +254,31 @@
               this.tableData[key].photo_dist = this.tableData_first[key].photo_dist.split(',');
             }
           }
-        })
+        });
+        var urlAkk = this.host + 'database/akkounts';
+        var urlSites = this.host + 'database/akksites';
+        this.axios.get(urlSites).then((res) => {
+          console.log("sites");
+          this.sites = res.data;
+          for( let items in this.sites){
+            this.sites[items].array_user = [];
+          }
+        });
+
+        this.axios.get(urlAkk).then((res) => {
+          console.log("userInfo");
+          this.userInfo = res.data;
+          for(let items in this.sites){
+            for(let akk in this.userInfo){
+              if(this.sites[items].site_id == this.userInfo[akk].site){
+                this.sites[items].array_user.push(this.userInfo[akk]);
+              }
+            }
+          }
+        });
       },
       editClose: function () {
         let url = this.host + 'database/edit/' + this.form.flat_id;
-        this.form.post_places = this.checkedCities.toString();
         this.form.mebel = this.form.mebel ? 1 : 0;
         this.form.internet = this.form.internet ? 1: 0;
         this.axios.post(url, this.form);
@@ -270,17 +291,13 @@
           this.links = res.data;
         });
       },
-      handleCheckAllChange(val) {
-        this.checkedCities = this.form.post_places_new;
-        this.checkedCities = val ? cityOptions : [];
-        this.isIndeterminate = false;
-      },
-      handleCheckedCitiesChange(value) {
-        let checkedCount = value.length;
-        this.checkAll = checkedCount === this.cities.length;
-        this.isIndeterminate = checkedCount > 0 && checkedCount < this.cities.length;
-      },
       handleRemove(file, fileList) {
+        let re = /src\/assets\//g;
+        let name = file.name.replace(re,'');
+        console.log(name);
+        let urlDeleteImage = this.host + 'database/deleteimage/' + name;
+        console.log(urlDeleteImage);
+        this.axios.get(urlDeleteImage);
       },
       handlePictureCardPreview(file) {
         this.dialogImageUrl = file.url;
@@ -288,7 +305,8 @@
       },
       beforeRemove(file, fileList) {
         // return this.$confirm(`Вы действительно хотите удалить ${ file.name }？`);
-        this.form.photo_dist.splice(find(this.form.photo_dist, file.name), 1);
+        this.form.photo_dist.splice(this.form.photo_dist.indexOf(file.name), 1);
+        console.log(file.name);
       },
       beforeUpdate(file, fileList){
         this.form.photo_dist.push(file.name);

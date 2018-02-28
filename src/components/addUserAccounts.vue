@@ -2,34 +2,46 @@
   <div id="table_user">
     <table class="table table-striped">
       <thead class="thead-color">
-      <tr>
-        <th scope="col" width="160">Сервис</th>
-        <th scope="col" width="200" style="text-align: justify">Логин</th>
-        <th scope="col" width="200">Пароль</th>
-        <th scope="col" width="150">Email</th>
-        <th scope="col" width="260">Телефон</th>
-        <th scope="col" width="160">Имя</th>
-        <th scope="col" width="160">Фамилия</th>
-        <th scope="col" width="600">Информация</th>
-        <th scope="col" width="150"><router-link class="btn btn-success" to="/user/add">
-          <i class="el-icon-delete"></i> Добавить</router-link></th>
-      </tr>
+        <tr>
+          <th scope="col" width="5"><i class="el-icon-view"></i></th>
+          <th scope="col" width="160">Сервис</th>
+          <th scope="col" width="400">Имя</th>
+          <th scope="col" width="400" style="text-align: justify">Логин</th>
+          <th scope="col" width="300">Email</th>
+          <th scope="col" width="260">Телефон</th>
+          <th scope="col" width="200">
+            <router-link to="/user/add">
+              <el-button type="success" plain icon="el-icon-plus">
+                Добавить
+              </el-button>
+            </router-link>
+          </th>
+        </tr>
       </thead>
       <tbody>
-      <tr v-for="(items, index) in userInfo">
-        <td>{{items.siteName}}</td>
-        <td>{{items.login}}</td>
-        <td>{{items.pass}}</td>
-        <td>{{items.email}}</td>
-        <td>{{items.phone}}</td>
-        <td>{{items.name}}</td>
-        <td>{{items.surname}}</td>
-        <td>{{items.information}}</td>
+        <tr v-for="(items, index) in userInfo">
 
-        <td><a class="btn btn-danger" href="#" @click="rowDelete(items.akk_id, index)" >
-          <i class="el-icon-delete"></i></a>
-          <router-link :to="{path: '/displaytable/edit',name: 'editItem', params: {item: userInfo[index]}}" tag="button" class="btn btn-primary" v-b-modal.modalPrevent><i class="el-icon-edit"></i></router-link></td>
-      </tr>
+          <td v-if="items.status == '1'">
+            <i class="el-icon-circle-check-outline" color="green"></i>
+          </td>
+          <td v-else>
+            <el-tooltip class="item" effect="dark" :content="items.status" placement="top-start">
+              <i class="el-icon-circle-close-outline" color="green"></i>
+            </el-tooltip>
+          </td>
+          <td>{{items.siteName}}</td>
+          <td>{{items.man}}</td>
+          <td>{{items.login}}</td>
+          <td>{{items.email}}</td>
+          <td>{{items.phone}}</td>
+          <td>
+            <!--<el-button-group>-->
+              <el-button type="danger" plain icon="el-icon-delete" @click="confirmDelete(items.akk_id, index)"></el-button>
+              <router-link :to="{path: '/user/edit',name: 'editUser', params: {item: userInfo[index]}}"  v-b-modal.modalPrevent><el-button type="primary" plain icon="el-icon-edit"></el-button></router-link>
+              <!--<router-link :to="{path: '/displaytable/edit',name: 'editItem', params: {item: userInfo[index]}}" v-b-modal.modalPrevent><el-button type="primary" plain icon="el-icon-edit"></el-button></router-link>-->
+            <!--</el-button-group>-->
+          </td>
+        </tr>
       </tbody>
     </table>
     <transition name="fade">
@@ -52,7 +64,7 @@
             interval: new Function()
           }
         },
-        mounted: function(){
+        created: function () {
           this.interval = setInterval(this.fetchUsers, 1000);
         },
         destroyed(){
@@ -78,6 +90,24 @@
               }
             });
           },
+          confirmDelete: function (e,i) {
+            this.$confirm('Вы точно хотите удплить акаунт?', 'Внимание', {
+              confirmButtonText: 'OK',
+              cancelButtonText: 'Cancel',
+              type: 'warning'
+            }).then(() => {
+              this.rowDelete(e,i);
+              this.$message({
+                type: 'success',
+                message: 'Аккаунт удален'
+              });
+            }).catch(() => {
+              this.$message({
+                type: 'info',
+                message: 'Отмена удаления'
+              });
+            });
+          },
           rowDelete: function(e, i) {
             var url = this.host+ 'database/delete_user/' + e;
             this.userInfo.splice(i, 1);
@@ -90,5 +120,14 @@
 <style scoped>
   #table_user{
     position: absolute;
+  }
+  td{
+    font-size: 16px;
+  }
+  .el-icon-circle-check-outline{
+    color: green;
+  }
+  .el-icon-circle-close-outline{
+    color: red;
   }
 </style>

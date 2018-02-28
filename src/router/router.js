@@ -6,6 +6,7 @@ import createItem from '../components/createItem'
 import editItem from '../components/editItem'
 import addUserAccounts from '../components/addUserAccounts'
 import createUser from '../components/createUser'
+import editUser from '../components/editUser'
 
 Vue.use(Router)
 
@@ -35,7 +36,12 @@ export default new Router({
         path: 'add',
         name: 'createUser',
         component: createUser
-      }]
+      },{
+        path: 'edit',
+        name: 'editUser',
+        component: editUser
+      }
+      ]
     }
   ]
 })

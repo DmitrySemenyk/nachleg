@@ -7,66 +7,93 @@
            @cancel="cancelRooot"
            @hidden="cancelRooot"
            @shown="clearName">
-    <form @submit.prevent="addItem">
-      <b-form-input class="form-style"
-                    type="text"
-                    placeholder="Введите названия обьявления"
-                    v-model="form.title"></b-form-input>
-      <b-form-textarea class="form-style"
-                       id="textarea1"
-                       type="text"
-                       placeholder="Введите дополнительную информацию о квартире"
-                       v-model="form.post_text"
-                       :rows="6"
-                       :max-rows="12"></b-form-textarea>
+    <el-form :model="form" :rules="rules" ref="form" class="demo-ruleForm">
+       <!--Title-->
+      <el-form-item prop="title">
+        <el-input type="text"
+                  placeholder="Введите названия обьявления"
+                  v-model="form.title">
+        </el-input>
+      </el-form-item>
+      <!--Post_Text-->
+      <el-form-item prop="post_text">
+        <el-input type="textarea"
+                  placeholder="Введите дополнительную информацию о квартире"
+                  v-model="form.post_text"
+                  :rows="6"
+                  :max-rows="12"></el-input>
+      </el-form-item>
+      <!--Cities Address Flat-->
       <h5>Адрес квартиры</h5>
-      <el-row class="form-style">
-        <el-col :span="8"><div class="grid-content bg-purple">
-          <el-autocomplete
-            class="elemHouse"
-            v-model="form.cities"
-            :fetch-suggestions="querySearchAsync"
-            placeholder="Выберите город"
-            @select="handleSelect"><template slot="prepend">Город:</template></el-autocomplete>
-        </div></el-col>
-        <el-col :span="8"><div class="grid-content bg-purple-light">
-          <el-input
-            class="elemHouse"
-            placeholder="Введите улицу"
-            v-model="form.address"
-            clearable><template slot="prepend">Улица:</template>
-          </el-input>
-        </div></el-col>
-        <el-col :span="8"><div class="grid-content bg-purple">
-          <el-input-number v-model="form.building" controls-position="right" @change="handleChange" :min="1" :max="1000" class="elemHouse"></el-input-number>
-        </div></el-col>
-      </el-row>
-
+        <el-row>
+          <!--City-->
+          <el-col :span="8"><div class="grid-content bg-purple">
+            <el-form-item prop="cities">
+              <el-autocomplete
+                class="elemHouse"
+                v-model="form.cities"
+                :fetch-suggestions="querySearchAsync"
+                placeholder="Выберите город"
+                @select="handleSelect"><template slot="prepend">Город:</template></el-autocomplete>
+            </el-form-item>
+          </div></el-col>
+          <!--Street-->
+          <el-col :span="8"><div class="grid-content bg-purple-light">
+            <el-form-item prop="address">
+              <el-input
+                class="elemHouse"
+                placeholder="Введите улицу"
+                v-model="form.address"
+                clearable><template slot="prepend">Улица:</template>
+              </el-input>
+            </el-form-item>
+          </div></el-col>
+          <!--Home number-->
+          <el-col :span="8"><div class="grid-content bg-purple">
+            <el-form-item prop="building">
+              <el-input v-model="form.building" controls-position="right" placeholder="Введите номер дома" @change="handleChange" :min="1" :max="1000" class="elemHouse" clearable>
+                <template slot="prepend">Дом:</template>
+              </el-input>
+            </el-form-item>
+          </div></el-col>
+        </el-row>
+      <!--Number of rooms-->
       <h5>Выберите количество комнат</h5>
-      <b-form-group>
-        <b-form-radio-group class=""
-                            id="btnradios2"
-                            buttons
-                            button-variant="outline-primary"
-                            size="lg"
-                            v-model="form.rooms"
-                            :options="roomsOptions"
-                            name="radioBtnOutline" />
-      </b-form-group>
-
+      <el-row>
+        <el-col :span="16">
+          <div class="grid-content bg-purple">
+            <el-form-item prop="rooms">
+              <b-form-group>
+                <b-form-radio-group
+                                    id="btnradios2"
+                                    buttons
+                                    button-variant="outline-primary"
+                                    size="lg"
+                                    v-model="form.rooms"
+                                    :options="roomsOptions"
+                                    name="radioBtnOutline" />
+              </b-form-group>
+            </el-form-item>
+          </div>
+        </el-col>
+      </el-row>
+      <!--Flat elements-->
       <h5>Атрибуты квартиры</h5>
       <el-row :gutter="20">
-        <el-col :span="14"><div class="grid-content bg-purple">
-          <el-select v-model="form.state" placeholder="Select">
-            <el-option
-              v-for="item in stateFix"
-              :key="item.value"
-              :label="item.text"
-              :value="item.value">
-            </el-option>
-          </el-select>
+        <el-col :span="10"><div class="grid-content bg-purple">
+          <el-form-item prop="state">
+            <el-select v-model="form.state" placeholder="Select" class="aributes_state">
+              <el-option
+                v-for="item in stateFix"
+                :key="item.value"
+                :label="item.text"
+                :value="item.value">
+              </el-option>
+            </el-select>
+          </el-form-item>
         </div></el-col>
-        <el-col :span="5"><div class="grid-content bg-purple">
+        <el-col :span="2"><div class="grid-content bg-purple"></div></el-col>
+        <el-col :span="4"><div class="grid-content bg-purple">
           <el-switch
             style="display: block"
             v-model="form.mebel"
@@ -75,7 +102,7 @@
             inactive-text="Мебель">
           </el-switch>
         </div></el-col>
-        <el-col :span="5"><div class="grid-content bg-purple">
+        <el-col :span="4"><div class="grid-content bg-purple">
           <el-switch
             style="display: block"
             v-model="form.internet"
@@ -85,28 +112,45 @@
           </el-switch>
         </div></el-col>
       </el-row>
+      <!--Mobile namber and price-->
       <h5>Укажите номер телефона и цену квартиры</h5>
-      <el-row :gutter="20">
+        <el-row :gutter="20">
+        <!--Phone number-->
         <el-col :span="16"><div class="grid-content bg-purple">
-          <el-input placeholder="Введите номер телефона" v-model="form.phone"></el-input>
+          <el-form-item prop="phone">
+            <el-input placeholder="Введите номер телефона" v-model="form.phone" value="number">
+              <template slot="prepend">+375</template>
+            </el-input>
+          </el-form-item>
         </div></el-col>
+        <!--Price-->
         <el-col :span="8"><div class="grid-content bg-purple">
-          <el-input placeholder="" v-model="form.price">
-            <template slot="append">&#8364;</template>
-          </el-input>
+          <el-form-item prop="price">
+            <el-input placeholder="Введите цену" v-model="form.price">
+              <el-select v-model="select_label" slot="append" :placeholder="select_label">
+                <el-option label="$" value="_2"></el-option>
+                <el-option label="руб" value="_1"></el-option>
+              </el-select>
+            </el-input>
+          </el-form-item>
         </div></el-col>
       </el-row>
+      <!--Date and Accounts-->
       <h5>Укажите дату обьявления и выберите акаунты</h5>
       <el-row :gutter="20">
+        <!--Date-->
         <el-col :span="8"><div class="grid-content bg-purple">
-          <el-date-picker
-            v-model="form.date_post"
-            format="dd-MM-yyyy HH:mm"
-            value-format="dd-MM-yyyy HH:mm"
-            type="datetime"
-            placeholder="Выберете дату и время">
-          </el-date-picker>
+          <el-form-item prop="date_post">
+            <el-date-picker
+              v-model="form.date_post"
+              format="dd-MM-yyyy HH:mm"
+              value-format="dd-MM-yyyy HH:mm"
+              type="datetime"
+              placeholder="Выберете дату и время">
+            </el-date-picker>
+          </el-form-item>
         </div></el-col>
+        <!--Acaounts-->
         <el-col :span="16"><div class="grid-content bg-purple">
           <el-select v-model="form.post_places_new" placeholder="Выберете аккаунты" multiple style="width: 100%" >
             <el-option-group
@@ -116,18 +160,20 @@
               <el-option
                 v-for="items in item.array_user"
                 :key="item.site_name + ': ' + items.akk_id"
-                :label="item.site_name + ': ' + items.login"
-                :value="item.site_name + ': ' + items.login">
+                :label="items.man"
+                :value="items.akk_id">
               </el-option>
             </el-option-group>
           </el-select>
         </div></el-col>
       </el-row>
+      <!--Image Upload-->
       <h5>Загрузите изображения</h5>
       <el-upload
         class="upload-demo"
         name="imageRent"
         ref="upload"
+        :data="form.filename"
         :headers="headerInfo"
         action="http://localhost:4000/database/photos/upload"
         :on-preview="handlePictureCardPreview"
@@ -146,7 +192,8 @@
         </el-dialog>
         <div slot="tip" class="el-upload__tip">jpg/png files with a size less than 500kb</div>
       </el-upload>
-    </form>
+
+    </el-form>
   </b-modal>
 </template>
 
@@ -164,6 +211,7 @@
 
   Vue.use(Element);
   Vue.use(BootstrapVue);
+  locale.use(lang);
 
   const cityOptions = ['onliner.by', 'kufar.by', 'akua.by', 'tut.by'];
 
@@ -178,6 +226,16 @@
         editItem: [],
         dialogTableVisible: false,
         dialogFormVisible: false,
+        test: {
+          elem1: {
+            text: 'Kat',
+            max: 'Lom'
+          },
+          elem2: {
+            text: 'Cat',
+            max: 'Lat'
+          }
+        },
         form: {
           title: '',
           post_text: '',
@@ -194,7 +252,41 @@
           post_places_new: [],
           post_places: '',
           fileList: '',
-          fileList_array: []
+          fileList_array: [],
+          filename: []
+        },
+        rules: {
+          title: [
+            { required: true, message: 'Please input Activity name', trigger: 'blur' },
+            { min: 3, max: 5, message: 'Length should be 3 to 5', trigger: 'blur' }
+          ],
+          post_text: [
+            { required: true, message: 'Please input activity form', trigger: 'blur' }
+          ],
+          cities: [
+            { required: true, message: 'Please input Activity name', trigger: 'blur' }
+          ],
+          address: [
+            { required: true, message: 'Please input Activity name', trigger: 'blur' },
+          ],
+          building: [
+            { required: true, message: 'Please input Activity name', trigger: 'blur' },
+          ],
+          rooms: [
+            { required: true, message: 'Please input Activity name', trigger: 'blur' },
+          ],
+          state: [
+            { required: true, message: 'Please input Activity name', trigger: 'blur' },
+          ],
+          phone: [
+            { required: true, message: 'Please input Activity name', trigger: 'blur' },
+          ],
+          price: [
+            { required: true, message: 'Please input Activity name', trigger: 'blur' },
+          ],
+          date_post: [
+            { type: 'datetime', required: true, message: 'Please pick a time', trigger: 'change' }
+          ]
         },
         formLabelWidth: '120px',
         name: '',
@@ -224,7 +316,9 @@
         host: 'http://localhost:4000/',
 
         sites: [],
-        userInfo: []
+        userInfo: [],
+
+        select_label: '_1'
       };
     },
 
@@ -232,6 +326,8 @@
       this.fetchItems();
       this.addCitis();
     },
+
+
     methods: {
       clearName () {
         this.form.title = '';
@@ -250,7 +346,7 @@
       },
       handleOk (evt) {
         // Prevent modal from closing
-        evt.preventDefault()
+        evt.preventDefault();
         if (!this.form.title && !this.form.title) {
           alert('Please enter your name')
         } else {
@@ -346,18 +442,25 @@
         this.isIndeterminate = checkedCount > 0 && checkedCount < this.cities.length;
       },
       handleRemove(file, fileList) {
+        console.log(file.name);
+        this.form.fileList_array.splice(this.form.fileList_array.indexOf(file.name), 1);
+        this.form.fileList = this.form.fileList_array.toString();
       },
       handlePictureCardPreview(file) {
         this.dialogImageUrl = file.url;
         this.dialogVisible = true;
       },
-      handleExceed(files, fileList) {
-        this.$message.warning(`The limit is 3, you selected ${files.length} files this time, add up to ${files.length + fileList.length} totally`);
-      },
       beforeRemove(file, fileList) {
-        return this.$confirm(`Вы действительно хотите удалить ${ file.name }？`);
+        if(this.$confirm(`Вы действительно хотите удалить ${ file.name }？`)){
+          console.log('here!');
+        }else{
+          console.log('Not found');
+        }
       },
       beforeUpdate(file, fileList){
+        // file.name = Date.now() + '-' + file.name;
+        this.form.filename.push(file);
+        console.log(file);
         this.form.fileList_array.push(fileList[fileList.length-1].name);
         this.form.fileList = this.form.fileList_array.toString();
         this.form.post_places = this.form.post_places_new.toString();
@@ -377,5 +480,14 @@
   }
   .form-style{
     margin-bottom: 20px;
+  }
+  .elemHouse{
+    padding-right: 5px;
+  }
+  .el-select {
+    width: 100px;
+  }
+  .aributes_state{
+    width: 100%;
   }
 </style>

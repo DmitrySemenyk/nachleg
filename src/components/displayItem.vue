@@ -2,37 +2,58 @@
   <div id="table">
     <table class="table table-striped">
       <thead class="thead-color">
-      <tr>
-        <th scope="col" width="160">Публикации</th>
-        <th scope="col" width="800" style="text-align: justify">Описание</th>
-        <th scope="col" width="600">Фото</th>
-        <th scope="col" width="150">Адресс</th>
-        <th scope="col" width="260">Удобства</th>
-        <th scope="col" width="160">Телефон</th>
-        <th scope="col" width="150"><router-link class="btn btn-success" to="/displaytable/add">
-          <i class="el-icon-delete"></i> Добавить</router-link></th>
-      </tr>
+        <tr>
+          <th scope="col" width="50">№</th>
+          <th scope="col" width="100" style="text-align: justify">Город</th>
+          <th scope="col" width="1000">Текст</th>
+          <th scope="col" width="400">Фото</th>
+          <th scope="col" width="200">Дата публикации</th>
+          <th scope="col" width="160">Сервисы</th>
+          <th scope="col" width="150">
+            <router-link to="/displaytable/add">
+              <el-button type="success" plain icon="el-icon-plus">
+                Добавить
+              </el-button>
+            </router-link>
+          </th>
+        </tr>
       </thead>
       <tbody>
       <tr v-for="(items, index) in tableData">
-        <td> <strong>{{ items.date_post_new}}</strong>
-          <div  v-for="elem in items.post">
-            <p class="p_post">{{elem}}</p>
-          </div>
+        <td>
+          <strong>
+            {{items.flat_id}}
+          </strong>
+          <!--<div  v-for="elem in items.post">-->
+            <!--<el-tag class="p_post" type="success"><i class="el-icon-success"> {{elem}} </i></el-tag>-->
+          <!--</div>-->
         </td>
-        <td><strong>{{ items.title}}</strong> <br> {{ items.post_text}}</td>
+        <td><p>{{items.city}}</p></td>
+        <td class="elem_post_text"><strong>{{items.title}}</strong><br><p>{{items.post_text}}</p></td>
         <td v-if="items.photo_dist == 'src/assets/'"> ----- </td>
         <td v-else>
           <div class="lineBlock" v-for="elem in items.photo_dist">
             <img class="imageLook" :src="elem">
           </div>
         </td>
-        <td><p>г.{{items.city}},<br> ул.{{items.street}},<br> д.{{items.building}}</p></td>
-        <td><p><strong>Ремонт:</strong> <br>{{items.state}}<br><strong>Бытовая техника:</strong> <br>{{items.mebel ? "да":"нет"}}<br><strong>Интернет:</strong> <br>{{items.internet ? "да":"нет"}}</p></td>
-        <td><p>{{items.phone}}</p></td>
-        <td><a class="btn btn-danger" href="#" @click="rowDelete(items.flat_id, index)" >
-          <i class="el-icon-delete"></i></a>
-          <router-link :to="{path: '/displaytable/edit',name: 'editItem', params: {item: tableData[index]}}" tag="button" class="btn btn-primary" v-b-modal.modalPrevent><i class="el-icon-edit"></i></router-link></td>
+        <td><p>{{items.date_post}}</p></td>
+        <td v-if="">
+          <div  v-for="keyM in akkaunts">
+            <div v-for="elem in post_plase">
+              <el-tag v-if="elem.state == 'wait' && elem.akkaunt == keyM.akk_id && items.flat_id == elem.post" class="p_post" type="info"><i class="el-icon-loading"></i>
+                {{keyM.man}}
+              </el-tag>
+              <el-tag v-else-if="elem.state == 'no' && elem.akkaunt == keyM.akk_id && items.flat_id == elem.post" class="p_post" type="warning"><i class="el-icon-circle-close"></i> {{keyM.man}}</el-tag>
+              <el-tag v-else-if="elem.state == 'ok' && elem.akkaunt == keyM.akk_id && items.flat_id == elem.post" class="p_post" type="success"><i class="el-icon-circle-check"></i> {{keyM.man}}</el-tag>
+            </div>
+          </div>
+        </td>
+        <td>
+          <!--<el-button-group>-->
+            <el-button type="danger" plain icon="el-icon-delete" @click="confirmDelete(items.flat_id, index)"></el-button>
+            <router-link :to="{path: '/displaytable/edit',name: 'editItem', params: {item: tableData[index]}}"  v-b-modal.modalPrevent><el-button type="primary" plain icon="el-icon-edit"></el-button></router-link>
+          <!--</el-button-group>-->
+        </td>
       </tr>
       </tbody>
     </table>
@@ -54,12 +75,15 @@
       return{
         tableData: [],
         tableData_old: [],
+        post_plase: [],
+        sites: [],
+        akkaunts: [],
         form: [],
         host: 'http://localhost:4000/',
         interval: new Function()
       }
     },
-    mounted: function(){
+    created: function () {
       this.interval = setInterval(this.fetchItems, 1000);
     },
     destroyed(){
@@ -67,7 +91,11 @@
     },
     methods: {
       fetchItems: function () {
-        var url = this.host + 'database/flats';
+        let url = this.host + 'database/flats';
+        let post_get = this.host + 'database/post_places';
+        let sites = this.host + 'database/akksites';
+        let akkaunts = this.host + 'database/akkounts'
+
         axios.get(url).then((res) => {
           var uploads = 'src/assets/';
           this.tableData_old = res.data;
@@ -92,14 +120,51 @@
           }
 
         });
+        axios.get(post_get).then((res) => {
+          this.post_plase = res.data;
+        });
+
+        axios.get(sites).then((res) => {
+          this.sites = res.data;
+        });
+
+        axios.get(akkaunts).then((res) => {
+          this.akkaunts = res.data;
+        });
+      },
+      confirmDelete: function (e,i) {
+        this.$confirm('Вы точно хотите удплить данный пост?', 'Внимание', {
+          confirmButtonText: 'OK',
+          cancelButtonText: 'Cancel',
+          type: 'warning'
+        }).then(() => {
+          this.rowDelete(e,i);
+          this.$message({
+            type: 'success',
+            message: 'Пост номер ' + i + ' удален'
+          });
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: 'Отмена удаления'
+          });
+        });
       },
       rowDelete: function(e, i) {
         var url = this.host+ 'database/delete/' + e;
+        console.log(url);
         this.tableData.splice(i, 1);
         axios.get(url);
+        this.success_elem(e);
       },
       rowEdit: function (id, items) {
         this.$router.push({name: 'editItem'});
+      },
+      success_elem: function (e) {
+        this.$message({
+          message: 'Удалена строка ' + e,
+          type: 'success'
+        });
       }
     }
   }
@@ -113,8 +178,8 @@
     opacity: 0
   }
   .imageLook{
-    width: 80px;
-    height: 80px;
+    width: 50px;
+    height: 50px;
     margin: 5px;
     -moz-border-radius: 10px; /* закругление для старых Mozilla Firefox */
     -webkit-border-radius: 10px; /* закругление для старых Chrome и Safari */
@@ -142,6 +207,10 @@
   }
   #table{
     position:absolute;
+  }
+  .elem_post_text p {
+    font-size: 12px;
+    text-align:justify;
   }
 
 </style>
