@@ -286,6 +286,16 @@ itemRoutes.route('/post_places').get(function (req,res) {
   });
 });
 
+itemRoutes.route('/userLogin').post(function (req,res) {
+  console.log(req.body);
+  if(req.body.name == 'user' && req.body.password == 'user'){
+    console.log('OK');
+  }else{
+    console.log('NO')
+  }
+  res.send("OK");
+});
+
 
 const app = express();
 app.use(express.static(__dirname));
@@ -323,16 +333,21 @@ app.use(expressValidator({
   }
 }));
 
+app.get('/login', function (req,res) {
+    console.log("Login GET");
+    res.sendFile(path.join(__dirname, '/', 'index.html'))
+});
 
-app.post('/login',
-  passport.authenticate('local', { successRedirect: '/',
-    failureRedirect: '/login',
-    failureFlash: true })
-);
+app.post('/displaytable', function(req,res){
+    console.log(req.body.password);
+    console.log(req.body.name);
+    console.log(req.body);
+    console.log('Login POST');
+    res.sendFile(path.join(__dirname, '/', 'index.html'))
+  });
 
-
-
-app.get('/', function(req,res,next){
+app.get('/', function(req,res){
+  console.log("MAIN GET");
   res.sendFile(path.join(__dirname, '/', 'index.html'))
 });
 

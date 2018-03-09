@@ -334,7 +334,6 @@
       this.addCitis();
     },
 
-
     methods: {
       clearName () {
         this.form.title = '';
@@ -368,7 +367,6 @@
           }
         });
       },
-
       querySearchAsync(queryString, cb) {
         var links = this.links;
         var results = queryString ? links.filter(this.createFilter(queryString)) : links;
@@ -484,7 +482,6 @@
         this.$router.push('/displaytable');
       }
     }
-
   }
 </script>
 
