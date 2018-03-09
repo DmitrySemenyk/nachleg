@@ -7,10 +7,12 @@
            @hidden="cancelRooot"
            @ok="handleOk">
     <form @submit.prevent="editClose">
+
       <b-form-input class="form-style"
                     type="text"
                     placeholder="Введите названия обьявления"
                     v-model="form.title"></b-form-input>
+
       <b-form-textarea class="form-style"
                        id="textarea1"
                        type="text"
@@ -18,6 +20,7 @@
                        v-model="form.post_text"
                        :rows="6"
                        :max-rows="12"></b-form-textarea>
+
       <h5>Адрес квартиры</h5>
       <el-row class="form-style">
         <el-col :span="8"><div class="grid-content bg-purple">
@@ -84,6 +87,7 @@
           </el-switch>
         </div></el-col>
       </el-row>
+
       <h5>Укажите номер телефона и цену квартиры</h5>
       <el-row :gutter="20">
         <el-col :span="16"><div class="grid-content bg-purple">
@@ -95,6 +99,7 @@
           </el-input>
         </div></el-col>
       </el-row>
+
       <h5>Укажите дату обьявления и выберите рекламные</h5>
       <el-row :gutter="20">
         <el-col :span="8"><div class="grid-content bg-purple">
@@ -122,6 +127,7 @@
           </el-select>
         </div></el-col>
       </el-row>
+
       <h5>Загрузите сюдв ващи изображения</h5>
       <el-upload
         class="upload-demo"
@@ -131,13 +137,12 @@
         action="http://localhost:4000/database/photos/upload"
         :on-remove="handleRemove"
         :before-remove="beforeRemove"
-        :auto-upload="false"
         multiple
         :limit="12"
         :on-exceed="handleExceed"
+        :on-success="beforeUpdate"
         list-type="picture-card"
-        :file-list="this.photo_card"
-        :on-change="beforeUpdate">
+        :file-list="this.photo_card">
         <i class="el-icon-plus"></i>
         <el-dialog :visible.sync="dialogVisible" size="tiny">
           <img width="100%" :src="dialogImageUrl" alt="">
@@ -217,6 +222,7 @@
       this.imageCard();
       this.addCitis();
     },
+
     methods: {
       handleOk (evt) {
         // Prevent modal from closing
@@ -236,11 +242,13 @@
           cb(results);
         }, 3000 * Math.random());
       },
+
       createFilter(queryString) {
         return (link) => {
           return (link.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
         };
       },
+
       fetchItems(){
         let url = this.host + 'database/flats';
         this.axios.get(url).then((res)=> {
@@ -277,6 +285,7 @@
           }
         });
       },
+
       editClose: function () {
         let url = this.host + 'database/edit/' + this.form.flat_id;
         this.form.mebel = this.form.mebel ? 1 : 0;
@@ -285,12 +294,14 @@
         this.modalPrevent = false;
         this.$router.push('/displaytable');
       },
+
       addCitis: function(){
         let url = this.host + 'database/citys';
         this.axios.get(url).then((res) => {
           this.links = res.data;
         });
       },
+
       handleRemove(file, fileList) {
         let re = /src\/assets\//g;
         let name = file.name.replace(re,'');
@@ -299,25 +310,30 @@
         console.log(urlDeleteImage);
         this.axios.get(urlDeleteImage);
       },
+
       handlePictureCardPreview(file) {
         this.dialogImageUrl = file.url;
         this.dialogVisible = true;
       },
+
       beforeRemove(file, fileList) {
         // return this.$confirm(`Вы действительно хотите удалить ${ file.name }？`);
         this.form.photo_dist.splice(this.form.photo_dist.indexOf(file.name), 1);
         console.log(file.name);
       },
-      beforeUpdate(file, fileList){
-        this.form.photo_dist.push(file.name);
 
+      beforeUpdate(res, file, fileList){
+        this.form.photo_dist.push(file.name);
+        console.log(fileList);
       },
+
       imageCard: function(){
         for (let val in this.form.photo_dist ){
           this.photo_card_elem = {name: this.form.photo_dist[val], url: 'http://localhost:4000/' + this.form.photo_dist[val] };
           this.photo_card.push(this.photo_card_elem);
         };
       },
+
       cancelRooot(){
         this.$router.push('/displaytable');
       }

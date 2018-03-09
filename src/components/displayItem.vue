@@ -24,9 +24,6 @@
           <strong>
             {{items.flat_id}}
           </strong>
-          <!--<div  v-for="elem in items.post">-->
-            <!--<el-tag class="p_post" type="success"><i class="el-icon-success"> {{elem}} </i></el-tag>-->
-          <!--</div>-->
         </td>
         <td><p>{{items.city}}</p></td>
         <td class="elem_post_text"><strong>{{items.title}}</strong><br><p>{{items.post_text}}</p></td>

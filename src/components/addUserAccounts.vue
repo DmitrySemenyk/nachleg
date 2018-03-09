@@ -5,7 +5,7 @@
         <tr>
           <th scope="col" width="5"><i class="el-icon-view"></i></th>
           <th scope="col" width="160">Сервис</th>
-          <th scope="col" width="400">Имя</th>
+          <th scope="col" width="800">Имя</th>
           <th scope="col" width="400" style="text-align: justify">Логин</th>
           <th scope="col" width="300">Email</th>
           <th scope="col" width="260">Телефон</th>
@@ -24,11 +24,15 @@
           <td v-if="items.status == '1'">
             <i class="el-icon-circle-check-outline" color="green"></i>
           </td>
+          <td v-else-if="items.status == '0'">
+            <i class="el-icon-loading"></i>
+          </td>
           <td v-else>
             <el-tooltip class="item" effect="dark" :content="items.status" placement="top-start">
               <i class="el-icon-circle-close-outline" color="green"></i>
             </el-tooltip>
           </td>
+
           <td>{{items.siteName}}</td>
           <td>{{items.man}}</td>
           <td>{{items.login}}</td>

@@ -1,22 +1,39 @@
 var express = require('express'),
+  expressValidator = require('express-validator');
   path = require('path'),
   bodyParser = require('body-parser'),
   cors = require('cors'),
   sqlite3 = require('sqlite3'),
   fs = require('fs');
   multer = require('multer');
+  passport = require('passport');
+  LocalStrategy = require('passport-local').Strategy;
+  session = require('express-session');
+  RedistStore = require('connect-redis')(session);
 
 
 const itemRoutes = express.Router();
 
-
+passport.use(new LocalStrategy(
+  function(username, password, done) {
+    User.findOne({ username: username }, function(err, user) {
+      if (err) { return done(err); }
+      if (!user) {
+        return done(null, false, { message: 'Incorrect username.' });
+      }
+      if (!user.validPassword(password)) {
+        return done(null, false, { message: 'Incorrect password.' });
+      }
+      return done(null, user);
+    });
+  }
+));
 
 var storage = multer.diskStorage({
   destination: function (req, res, cb) {
     cb(null, './src/assets/');
   },
   filename: function(req,file,cb){
-    console.log(req.body.filename);
     cb(null,file.originalname);
   }
 });
@@ -104,8 +121,6 @@ itemRoutes.route('/add').post(function (req, res) {
         db.run(postplaces, [req.itemID, arrAkaunts[key], state], function (err) {
           if(err){
             console.log(err.message);
-          }else{
-            console.log(req.itemID + " :-" + arrAkaunts[key]);
           }
         })
       }
@@ -159,9 +174,6 @@ itemRoutes.route('/delete_user/:akk_id').get(function (req,res) {
 
 itemRoutes.route('/edit/:flat_id').post(function (req,res){
   var flat_id = req.params.flat_id;
-  console.log("Here!");
-  console.log(flat_id);
-  console.log(req.body);
   const sqlEdit = "UPDATE flats SET title='" +
     req.body.title + "', post_text='" +
     req.body.post_text + "', city='" +
@@ -177,7 +189,6 @@ itemRoutes.route('/edit/:flat_id').post(function (req,res){
     req.body.date_post + "', post_places='" +
     req.body.post_places + "', photo_dist='" +
     req.body.photo_dist + "' WHERE flat_id=?";
-  console.log(sqlEdit);
   db.run(sqlEdit, flat_id, function (err, item) {
     if(err){
       console.log(err.message);
@@ -185,7 +196,7 @@ itemRoutes.route('/edit/:flat_id').post(function (req,res){
       res.json(item);
       console.log(item);
     }
-  })
+  });
   res.json({success:true});
 });
 
@@ -215,12 +226,11 @@ itemRoutes.route('/edituser/:user_id').post(function(req,res){
 
 itemRoutes.route('/photos/upload').post(function (req, res) {
   upload(req,res, function(err){
-
-    console.log(req.body);
-    res.send(req.files);
+    console.log(req.files);
     if(err){
-
+      res.send(err.message);
     }
+    res.send(req.files);
   })
 });
 
@@ -281,11 +291,51 @@ const app = express();
 app.use(express.static(__dirname));
 
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: false}));
 app.use(cors());
 app.use('/database', itemRoutes);
+
+//Express Session
+app.use(session({
+  secret: 'secret',
+  saveUninitialized: true,
+  resave: true
+}));
+
+//Passport Init
+app.use(passport.initialize());
+app.use(passport.session());
+
+//Express Validator
+app.use(expressValidator({
+  errorFormatter: function (param, msg, value) {
+    var namespace = param.split('.'),
+      root = namespace.shift(),
+      formParam = root;
+    while(namespace.length){
+      formParam += '[' + namespace.shift() + ']';
+    }
+    return{
+      param: formParam,
+      msg: msg,
+      value: value
+    };
+  }
+}));
+
+
+app.post('/login',
+  passport.authenticate('local', { successRedirect: '/',
+    failureRedirect: '/login',
+    failureFlash: true })
+);
+
+
+
 app.get('/', function(req,res,next){
   res.sendFile(path.join(__dirname, '/', 'index.html'))
 });
+
 
 
 const port = process.env.PORT || 4000;

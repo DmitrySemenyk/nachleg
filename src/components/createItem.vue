@@ -8,6 +8,7 @@
            @hidden="cancelRooot"
            @shown="clearName">
     <el-form :model="form" :rules="rules" ref="form" class="demo-ruleForm">
+
        <!--Title-->
       <el-form-item prop="title">
         <el-input type="text"
@@ -15,6 +16,7 @@
                   v-model="form.title">
         </el-input>
       </el-form-item>
+
       <!--Post_Text-->
       <el-form-item prop="post_text">
         <el-input type="textarea"
@@ -23,6 +25,7 @@
                   :rows="6"
                   :max-rows="12"></el-input>
       </el-form-item>
+
       <!--Cities Address Flat-->
       <h5>Адрес квартиры</h5>
         <el-row>
@@ -57,6 +60,7 @@
             </el-form-item>
           </div></el-col>
         </el-row>
+
       <!--Number of rooms-->
       <h5>Выберите количество комнат</h5>
       <el-row>
@@ -77,6 +81,7 @@
           </div>
         </el-col>
       </el-row>
+
       <!--Flat elements-->
       <h5>Атрибуты квартиры</h5>
       <el-row :gutter="20">
@@ -112,6 +117,7 @@
           </el-switch>
         </div></el-col>
       </el-row>
+
       <!--Mobile namber and price-->
       <h5>Укажите номер телефона и цену квартиры</h5>
         <el-row :gutter="20">
@@ -135,6 +141,7 @@
           </el-form-item>
         </div></el-col>
       </el-row>
+
       <!--Date and Accounts-->
       <h5>Укажите дату обьявления и выберите акаунты</h5>
       <el-row :gutter="20">
@@ -167,13 +174,13 @@
           </el-select>
         </div></el-col>
       </el-row>
+
       <!--Image Upload-->
       <h5>Загрузите изображения</h5>
       <el-upload
         class="upload-demo"
         name="imageRent"
         ref="upload"
-        :data="form.filename"
         :headers="headerInfo"
         action="http://localhost:4000/database/photos/upload"
         :on-preview="handlePictureCardPreview"
@@ -264,7 +271,7 @@
             { required: true, message: 'Please input activity form', trigger: 'blur' }
           ],
           cities: [
-            { required: true, message: 'Please input Activity name', trigger: 'blur' }
+            { required: true, message: 'Please input Activity name', trigger: 'change' }
           ],
           address: [
             { required: true, message: 'Please input Activity name', trigger: 'blur' },
@@ -273,10 +280,10 @@
             { required: true, message: 'Please input Activity name', trigger: 'blur' },
           ],
           rooms: [
-            { required: true, message: 'Please input Activity name', trigger: 'blur' },
+            { required: true, message: 'Please input Activity name', trigger: 'change' },
           ],
           state: [
-            { required: true, message: 'Please input Activity name', trigger: 'blur' },
+            { required: true, message: 'Please input Activity name', trigger: 'change' },
           ],
           phone: [
             { required: true, message: 'Please input Activity name', trigger: 'blur' },
@@ -285,7 +292,7 @@
             { required: true, message: 'Please input Activity name', trigger: 'blur' },
           ],
           date_post: [
-            { type: 'datetime', required: true, message: 'Please pick a time', trigger: 'change' }
+            { required: true, message: 'Please pick a time', trigger: 'change' }
           ]
         },
         formLabelWidth: '120px',
@@ -347,11 +354,19 @@
       handleOk (evt) {
         // Prevent modal from closing
         evt.preventDefault();
-        if (!this.form.title && !this.form.title) {
-          alert('Please enter your name')
-        } else {
-          this.addItem();
-        }
+        this.$refs['form'].validate((valid) => {
+          if(valid){
+            alert('Submit!!!');
+            this.addItem();
+          }else{
+            console.log("Error");
+            this.$message({
+              message: 'Ошибка записи',
+              type: 'warning'
+            });
+            return false;
+          }
+        });
       },
 
       querySearchAsync(queryString, cb) {

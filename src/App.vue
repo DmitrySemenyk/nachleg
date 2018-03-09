@@ -29,12 +29,8 @@
       </b-navbar>
       <transition name="slide">
         <router-view></router-view>
-        <div class="elem-div">
-
-        </div>
       </transition>
     </div>
-
   </div>
 </template>
 
@@ -99,20 +95,7 @@ export default {
     color: #FFEDDE;
     border-color: #17A2B8;
   }
-  #app{
-    background-image: url('/src/img/Nochleg_O.png');
-  }
-  .elem-div{
-    background-image: url('/src/img/Nochleg_O.png');
-    background-repeat: no-repeat;
-    -moz-background-size: 100%; /* Firefox 3.6+ */
-    -webkit-background-size: 100%; /* Safari 3.1+ и Chrome 4.0+ */
-    -o-background-size: 100%; /* Opera 9.6+ */
-    background-size: 100%; /* Современные браузеры */
-    position: fixed;
-    width: 100%;
-    height: 100%;
-  }
+
   .h1_possition{
     margin-bottom: auto;
     margin-top: auto;

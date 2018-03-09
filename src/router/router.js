@@ -7,6 +7,7 @@ import editItem from '../components/editItem'
 import addUserAccounts from '../components/addUserAccounts'
 import createUser from '../components/createUser'
 import editUser from '../components/editUser'
+import authUser from '../components/authForm'
 
 Vue.use(Router)
 
@@ -42,6 +43,11 @@ export default new Router({
         component: editUser
       }
       ]
+    },
+    {
+      path: '/login',
+      name: 'authUser',
+      component: authUser
     }
   ]
 })
